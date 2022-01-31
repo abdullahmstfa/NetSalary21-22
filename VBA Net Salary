@@ -1,0 +1,245 @@
+Option Explicit
+Dim Gross As Currency
+Dim TaxPaid As Currency
+Dim NIPaid As Currency
+Const APT As Currency = 9564 'Annual Primary Threshold (797*12)
+Const AST As Currency = 50268 'Annual Secondary Threshold (4189*12)
+Const CATAP As Single = 0.12 'Category A Primary Threshold
+Const CATAS As Single = 0.02 'Category A Secondary Threshold
+Const CATBP As Single = 0.0585 'Category B Primary Threshold
+Const CATBS As Single = 0.02 'Category B Secondary Threshold
+'Category C no NI, net after tax only
+Const CATHP As Single = 0.12 'Category H Primary Threshold
+Const CATHS As Single = 0.02 'Category H Secondary Threshold
+Const CATJP As Single = 0.02 'Category J Primary Threshold
+Const CATJS As Single = 0.02 'Category J Secondary Threshold
+Const CATMP As Single = 0.12 'Category M Primary Threshold
+Const CATMS As Single = 0.02 'Category M Secondary Threshold
+Const CATZP As Single = 0.02 'Category Z Primary Threhold
+Const CATZS As Single = 0.02 'Category Z Secondary Threshold
+Const PA As Currency = 12570 'Personal Allowance
+Const BRA As Currency = 50270 'Basic Rate Allowance
+Const PAR As Currency = 100000 'Personal Allowance reduced by £1 for every £2 of Gross above 100,000
+Const PAMax As Currency = 125140 'No Personal Allowance for Gross above 125,140
+Const RPA As Currency = 25140 'Window of falling Personal Allowance
+Const HRA As Currency = 150000 'Higher Rate Allowance
+Const BR As Variant = 0.2 'Basic Rate
+Const HR As Variant = 0.4 'Higher Rate
+Const AR As Variant = 0.45 'Additional Rate
+
+Function NetSalary2122(Gross, NICode)
+
+Select Case (Gross)
+    Case (APT + 0.01) To PA
+        Select Case (NICode)
+            Case ("A")
+                NIPaid = (Gross - APT) * CATAP
+                NetSalary2122 = Gross - NIPaid
+            Case ("B")
+                NIPaid = (Gross - APT) * CATBP
+                NetSalary2122 = Gross - NIPaid
+            Case ("C")
+                NetSalary2122 = Gross
+            Case ("H")
+                NIPaid = (Gross - APT) * CATHP
+                NetSalary2122 = Gross - NIPaid
+            Case ("J")
+                NIPaid = (Gross - APT) * CATJP
+                NetSalary2122 = Gross - NIPaid
+            Case ("M")
+                NIPaid = (Gross - APT) * CATMP
+                NetSalary2122 = Gross - NIPaid
+            Case ("Z")
+                NIPaid = (Gross - APT) * CATZP
+                NetSalary2122 = Gross - NIPaid
+        End Select
+    
+    Case (PA + 0.01) To AST
+        Select Case (NICode)
+            Case ("A")
+                NIPaid = (Gross - APT) * CATAP
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("B")
+                NIPaid = (Gross - APT) * CATBP
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("C")
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - TaxPaid
+            Case ("H")
+                NIPaid = (Gross - APT) * CATHP
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("J")
+                NIPaid = (Gross - APT) * CATJP
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("M")
+                NIPaid = (Gross - APT) * CATMP
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("Z")
+                NIPaid = (Gross - APT) * CATZP
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+        End Select
+    
+    Case (AST + 0.01) To BRA
+        Select Case (NICode)
+            Case ("A")
+                NIPaid = ((Gross - AST) * CATAS) + ((AST - APT) * CATAP)
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("B")
+                NIPaid = ((Gross - AST) * CATBS) + ((AST - APT) * CATBP)
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("C")
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - TaxPaid
+            Case ("H")
+                NIPaid = ((Gross - AST) * CATHS) + ((AST - APT) * CATHP)
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("J")
+                NIPaid = ((Gross - AST) * CATJS) + ((AST - APT) * CATJP)
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("M")
+                NIPaid = ((Gross - AST) * CATMS) + ((AST - APT) * CATMP)
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("Z")
+                NIPaid = ((Gross - AST) * CATZS) + ((AST - APT) * CATZP)
+                TaxPaid = (Gross - PA) * BR
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+        End Select
+    Case (BRA + 0.01) To PAR
+        Select Case (NICode)
+            Case ("A")
+                NIPaid = ((Gross - AST) * CATAS) + ((AST - APT) * CATAP)
+                TaxPaid = ((Gross - BRA) * HR) + ((BRA - PA) * BR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("B")
+                NIPaid = ((Gross - AST) * CATBS) + ((AST - APT) * CATBP)
+                TaxPaid = ((Gross - BRA) * HR) + ((BRA - PA) * BR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("C")
+                TaxPaid = ((Gross - BRA) * HR) + ((BRA - PA) * BR)
+                NetSalary2122 = Gross - TaxPaid
+            Case ("H")
+                NIPaid = ((Gross - AST) * CATHS) + ((AST - APT) * CATHP)
+                TaxPaid = ((Gross - BRA) * HR) + ((BRA - PA) * BR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("J")
+                NIPaid = ((Gross - AST) * CATJS) + ((AST - APT) * CATJP)
+                TaxPaid = ((Gross - BRA) * HR) + ((BRA - PA) * BR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("M")
+                NIPaid = ((Gross - AST) * CATMS) + ((AST - APT) * CATMP)
+                TaxPaid = ((Gross - BRA) * HR) + ((BRA - PA) * BR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("Z")
+                NIPaid = ((Gross - AST) * CATZS) + ((AST - APT) * CATZP)
+                TaxPaid = ((Gross - BRA) * HR) + ((BRA - PA) * BR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+        End Select
+    Case (PAR + 0.01) To PAMax
+        Select Case (NICode)
+            Case ("A")
+                NIPaid = ((Gross - AST) * CATAS) + ((AST - APT) * CATAP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + ((Gross - PAR) * HR) + (((Gross - PAR) / 2) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("B")
+                NIPaid = ((Gross - AST) * CATBS) + ((AST - APT) * CATBP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + ((Gross - PAR) * HR) + (((Gross - PAR) / 2) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("C")
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + ((Gross - PAR) * HR) + (((Gross - PAR) / 2) * HR)
+                NetSalary2122 = Gross - TaxPaid
+            Case ("H")
+                NIPaid = ((Gross - AST) * CATHS) + ((AST - APT) * CATHP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + ((Gross - PAR) * HR) + (((Gross - PAR) / 2) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("J")
+                NIPaid = ((Gross - AST) * CATJS) + ((AST - APT) * CATJP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + ((Gross - PAR) * HR) + (((Gross - PAR) / 2) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("M")
+                NIPaid = ((Gross - AST) * CATMS) + ((AST - APT) * CATMP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + ((Gross - PAR) * HR) + (((Gross - PAR) / 2) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("Z")
+                NIPaid = ((Gross - AST) * CATZS) + ((AST - APT) * CATZP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + ((Gross - PAR) * HR) + (((Gross - PAR) / 2) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+        End Select
+    
+    Case (PAMax + 0.01) To HRA
+        Select Case (NICode)
+            Case ("A")
+                NIPaid = ((Gross - AST) * CATAS) + ((AST - APT) * CATAP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((Gross - PAMax) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("B")
+                NIPaid = ((Gross - AST) * CATBS) + ((AST - APT) * CATBP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((Gross - PAMax) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("C")
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((Gross - PAMax) * HR)
+                NetSalary2122 = Gross - TaxPaid
+            Case ("H")
+                NIPaid = ((Gross - AST) * CATHS) + ((AST - APT) * CATHP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((Gross - PAMax) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("J")
+                NIPaid = ((Gross - AST) * CATJS) + ((AST - APT) * CATJP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((Gross - PAMax) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("M")
+                NIPaid = ((Gross - AST) * CATMS) + ((AST - APT) * CATMP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((Gross - PAMax) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("Z")
+                NIPaid = ((Gross - AST) * CATZS) + ((AST - APT) * CATZP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((Gross - PAMax) * HR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+        End Select
+        
+    Case Is > HRA
+        Select Case (NICode)
+            Case ("A")
+                NIPaid = ((Gross - AST) * CATAS) + ((AST - APT) * CATAP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((HRA - PAMax) * HR) + ((Gross - HRA) * AR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("B")
+                NIPaid = ((Gross - AST) * CATBS) + ((AST - APT) * CATBP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((HRA - PAMax) * HR) + ((Gross - HRA) * AR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("C")
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((HRA - PAMax) * HR) + ((Gross - HRA) * AR)
+                NetSalary2122 = Gross - TaxPaid
+            Case ("H")
+                NIPaid = ((Gross - AST) * CATHS) + ((AST - APT) * CATHP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((HRA - PAMax) * HR) + ((Gross - HRA) * AR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("J")
+                NIPaid = ((Gross - AST) * CATJS) + ((AST - APT) * CATJP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((HRA - PAMax) * HR) + ((Gross - HRA) * AR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("M")
+                NIPaid = ((Gross - AST) * CATMS) + ((AST - APT) * CATMP)
+                NetSalary2122 = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((HRA - PAMax) * HR) + ((Gross - HRA) * AR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+            Case ("Z")
+                NIPaid = ((Gross - AST) * CATZS) + ((AST - APT) * CATZP)
+                TaxPaid = ((BRA - PA) * BR) + ((PAR - BRA) * HR) + (RPA * HR) + ((RPA / 2) * HR) + ((HRA - PAMax) * HR) + ((Gross - HRA) * AR)
+                NetSalary2122 = Gross - (TaxPaid + NIPaid)
+        End Select
+    
+End Select
+
+
+End Function
+
